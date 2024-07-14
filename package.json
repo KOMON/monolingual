@@ -1,0 +1,32 @@
+{
+  "name": "mongolingual",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "\"Use MongoDB with all the power of JSON Schema!\"",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "node --test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KOMON/mongolingual.git"
+  },
+  "keywords": [
+    "mongodb",
+    "jsonschema",
+    "typescript"
+  ],
+  "author": "Dan Raloff",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KOMON/mongolingual/issues"
+  },
+  "homepage": "https://github.com/KOMON/mongolingual#readme",
+  "devDependencies": {
+    "typescript": "^5.5.3"
+  },
+  "dependencies": {
+    "@sinclair/typebox": "^0.32.34",
+    "mongodb": "^6.8.0"
+  }
+}

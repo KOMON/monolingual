@@ -17,13 +17,8 @@ type list<arr extends unknown[]> =
   : arr extends [infer first, ...(infer rest)] 
     ? cons<first, list<rest>>
   : never;
+
 type atom<t> = t extends cons<unknown, unknown> ? false : true;
-type ff<t> =
-  atom<t> extends true 
-    ? t 
-  : t extends cons<unknown, unknown>
-    ? ff<car<t>>
-  : never;
 
 type subst<x, y, z> = 
   atom<z> extends true 
@@ -171,7 +166,7 @@ type eval<e, a> =
     : eval<
         cons<
           assoc<car<e>, a>,
-          evlis<cdr<e>, a>
+          cdr<e>
         >,
         a
       >
@@ -181,7 +176,7 @@ type eval<e, a> =
         cons<list<[cadar<e>, car<e>]>, a>
       >
   : eq<caar<e>, LAMBDA> extends true
-    ? eval <
+    ? eval<
        caddar<e>,
        append<
          pair<cadar<e>, evlis<cdr<e>, a>>,
@@ -190,30 +185,6 @@ type eval<e, a> =
       >
   : never;
 
-type env = list<[list<[sym<'NIL'>, nil]>, list<[sym<'X'>, 100]>]>;
-
-type rip = list<[
-      LAMBDA,
-      list<[sym<'X'>, sym<'Y'>]>,
-      list<[
-        CONS,
-        list<[CAR, sym<'X'>]>,
-        sym<'Y'>
-      ]>
-    ]>
-
-type args =
-  list<[
-    list<[sym<'A'>, sym<'B'>]>,
-    list<[sym<'C'>, sym<'D'>]>
-  ]>
-
-type ee = print<cons<rip, appq<args>>>;
-type argsSubbed = pair<cadar<ee>, evlis<cdr<ee>, list<[list<[NIL, nil]>]>>>
-type finalExpr = caddar<ee>;
-type evalTest = print<apply<rip, args>>
-//print<cdr<e>>
-
 type appq<m> =
   nullp<m> extends true
     ? nil
@@ -221,135 +192,15 @@ type appq<m> =
 
 type apply<f, args> = eval<cons<f, appq<args>>, nil>;
 
-type simplify<t> = {} & {[k in keyof t]: t[k]};
-type a = cdr<[1, 2, 3]>;
-type b = atom<"hey">;
-type bb = atom<[1, nil]>;
-type c = eq<"hey", "hey">;
-type d = print<subst<[sym<'a'>, [sym<'b'>, nil]], sym<'c'>, [sym<'a'>, [sym<'b'>, [sym<'c'>, nil]]]>>
-type e = [1,2,3,4];
-type e1<x> = x extends cons<infer h, infer t> ? cons<h, e1<t>> : x;
-type f = e1<e>;
-type g = equal<[1, [2, [3, nil]]], [1, [2, [3, nil]]]>
-type h = nullp<1>
-type i = among<sym<"x">, [1, [2, [3, [sym<"x">, nil]]]]>
-type j = pair<[1, [2, [3, nil]]], [5, [[6, 7], [8, nil]]]>
-type kl =
-  list<[
-    list<[sym<'y'>, 2]>, 
-    list<[sym<'a'>, 3]>, 
-    list<[sym<'d'>, 4]>, 
-    list<[sym<'x'>, 100]>
- ]>;
-type k = assoc<sym<'x'>, kl>;
-
-type ll =
-  list<[
-    list<[sym<'x'>, list<[sym<'a'>, sym<'b'>]>]>, 
-    list<[sym<'y'>, list<[sym<'c'>, sym<'d'>]>]>
-  ]>
-
-type lt =
-  cons<
-    sym<'a'>,
-    cons<
-      sym<'x'>, 
-      sym<'y'>
-    >
-  >
-
-//type le = sub2<list<[cons<sym<'x'>, sym<'dan'>]>, sym<'x'>>
-
-type l = print<sublis<ll,lt>>
-
-type m =
-  print<apply<
-    list<[
-      LAMBDA,
-      list<[sym<'X'>, sym<'Y'>]>,
-      list<[
-        CONS,
-        list<[CAR, sym<'X'>]>,
-        sym<'Y'>
-      ]>
-    ]>,
-    list<[
-      list<[sym<'A'>, sym<'B'>]>,
-      list<[sym<'C'>, sym<'D'>]>
-    ]>
-  >>
-
-  // eval<caar<c>, a> extends true
-  //   ? eval<cadar<c>, a>
-  // : evcon<cdr<c>, a>;
+// (LABEL HAVE-A 
+//   (LAMBDA (X A) 
+//     (COND
+//       ((EQ A NIL) NIL)
+//        ((NOT (EQ (ASSOC X A) NIL)) T))))
 
 
-// cons<list<[cadar<e>, car<e>]>, a>
 
-type nnFFL =
-       list<[
-        LAMBDA,
-        list<[sym<'X'>]>,
-        list<[
-          COND,
-          list<[list<[ATOM, sym<'X'>]>, sym<'X'>]>,
-          list<[sym<'T'>, list<[sym<'FF'>, list<[CAR, sym<'X'>]>]>]>
-        ]>
-       ]>;
-
-type nnLabel = list<[LABEL, sym<'FF'>, nnFFL]>;
-type nnArgs = list<[cons<sym<'A'>, sym<'B'>>]>;
-type nnAppQ = appq<nnArgs>
-type nnConsed =
-  cons<
-    nnLabel, 
-    appq<nnArgs>
-  >;
-
-// type pair<x, y> =
-//   and<nullp<x>, nullp<y>> extends true
-//     ? nil
-//   : and<not<atom<x>>, not<atom<y>>> extends true
-//     ? cons<list<[car<x>, car<y>]>, pair<cdr<x>, cdr<y>>>
-//   : never;
-
-//  pair<cadar<nnConsed>, evlis<cdr<nnConsed>, nil>>
-type nnLambda = cons<caddar<nnConsed>, cdr<nnConsed>>;
-type nnLambdaEnv = cons<list<[cadar<nnConsed>, car<nnConsed>]>, nil>
-
-type nnCond = caddar<nnLambda>;
-type nnCondEnv = append<pair<cadar<nnLambda>, evlis<cdr<nnLambda>, nnLambdaEnv>>, nnLambdaEnv>
-
-// type assoc<x, y> =
-//   eq<caar<y>, x> extends true
-//     ? cadar<y>
-//   : assoc<x, cdr<y>>;
-
-
-type nnRecursion = list<[assoc<sym<'FF'>, nnCondEnv>, list<[CAR, sym<'X'>]>]>
-type nnRecursionLambda = cons<caddar<nnRecursion>, cdr<nnRecursion>>;
-
-type nnRecursionEnv = cons<list<[cadar<nnRecursion>, car<nnRecursion>]>, nnCondEnv>;
-
-type nnRecusionCond = caddar<nnRecursionLambda>;
-type nnExpr = print<cdr<nnRecursionLambda>>;
-type nnRecursionArgs =
-  pair<
-    cadar<nnRecursionLambda>, 
-    evlis<cdr<nnRecursionLambda>, nnRecursionEnv>
-    >
-type nn = print<
-  // eval<
-  caddar<nnConsed>,
-  //  nil
-  //   >
->
-// ((label
-//   ff
-//   (lambda (x)
-//    (cond
-//     ((atom x) x)
-//     (t (ff (car x)))))) y)
+// @ts-ignore 
 type n = print<
   apply<
     list<[
@@ -371,7 +222,12 @@ type n = print<
         ]>
       ]>
     ]>,
-    list<[cons<sym<'A'>, sym<'B'>>]>
+    list<[
+      list<[
+        cons<sym<'A'>, sym<'B'>>,
+        cons<sym<'C'>, sym<'D'>>
+      ]>
+    ]>
   >
 >
 
@@ -410,6 +266,5 @@ type n = print<
 //     ? readConsBody<s>
 //   : s extends `"${string}"`
 //     ? readString<s>
-
 
 
